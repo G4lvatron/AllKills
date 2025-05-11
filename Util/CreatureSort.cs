@@ -3,7 +3,7 @@
     /// <summary>
     ///     Utility class for sorting creatures on the end screen.
     /// </summary>
-    internal class CreatureSort
+    public class CreatureSort
     {
         /// <summary>
         ///     Get the ordering for the creatures.

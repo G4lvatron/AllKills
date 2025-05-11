@@ -5,6 +5,7 @@ using Menu;
 using MonoMod.Cil;
 using UnityEngine;
 using System;
+using AllKills.Menu;
 using Mono.Cecil.Cil;
 
 namespace AllKills
@@ -26,12 +27,15 @@ namespace AllKills
 
         #region Private Properties
 
-        private readonly Statistics _statistics = new Statistics();
+        /// <summary>
+        ///     The handler for the statistics menu on the sleep and death screen.
+        /// </summary>
+        private readonly SleepAndDeathScreenStatistics _statistics = new SleepAndDeathScreenStatistics();
 
         #endregion
 
         /// <summary>
-        ///     The entry point for the mod initialization. All method hooking is done here.
+        ///     The entry point for the mod initialization. All hooking is done here.
         /// </summary>
         public void OnEnable()
         {
@@ -48,7 +52,7 @@ namespace AllKills
             On.RainWorld.UnloadResources += Hook_UnloadResources;
             On.CreatureSymbol.SpriteNameOfCreature += Hook_SpriteNameOfCreature;
 
-            // Statistics
+            // SleepAndDeathScreenStatistics
             _statistics.Attach();
         }
 

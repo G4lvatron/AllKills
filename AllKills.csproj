@@ -37,6 +37,14 @@
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\plugins\HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils, Version=21.9.19.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\MonoMod.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="PUBLIC-Assembly-CSharp">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\utils\PUBLIC-Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -57,8 +65,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllKillsMain.cs" />
-    <Compile Include="CreatureSort.cs" />
+    <Compile Include="Util\CreatureSort.cs" />
+    <Compile Include="Menu\StatisticsData\DataFileHandling.cs" />
+    <Compile Include="Menu\StatisticsData\GameStatistics.cs" />
+    <Compile Include="Menu\StatisticsDialog.cs" />
+    <Compile Include="Menu\StatisticsMenu.cs" />
+    <Compile Include="Menu\UIComponents\CycleList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Menu\SleepAndDeathScreenStatistics.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
