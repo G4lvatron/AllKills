@@ -1,11 +1,9 @@
 ﻿using BepInEx;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Menu;
 using MonoMod.Cil;
-using UnityEngine;
-using System;
 using AllKills.Menu;
+using AllKills.Util;
 using Mono.Cecil.Cil;
 
 namespace AllKills
@@ -30,7 +28,12 @@ namespace AllKills
         /// <summary>
         ///     The handler for the statistics menu on the sleep and death screen.
         /// </summary>
-        private readonly SleepAndDeathScreenStatistics _statistics = new SleepAndDeathScreenStatistics();
+        private readonly SleepAndDeathScreenStatistics _sleepStatistics = new SleepAndDeathScreenStatistics();
+
+        /// <summary>
+        ///     The handler for the statistics menu on the slugcat select screen.
+        /// </summary>
+        private readonly SlugcatSelectMenuStatistics _selectStatistics = new SlugcatSelectMenuStatistics();
 
         #endregion
 
@@ -53,7 +56,8 @@ namespace AllKills
             On.CreatureSymbol.SpriteNameOfCreature += Hook_SpriteNameOfCreature;
 
             // SleepAndDeathScreenStatistics
-            _statistics.Attach();
+            _sleepStatistics.Attach();
+            _selectStatistics.Attach();
         }
 
         #region Show All Kills

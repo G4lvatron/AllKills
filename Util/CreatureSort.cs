@@ -1,4 +1,4 @@
-﻿namespace AllKills
+﻿namespace AllKills.Util
 {
     /// <summary>
     ///     Utility class for sorting creatures on the end screen.
@@ -8,9 +8,9 @@
         /// <summary>
         ///     Get the ordering for the creatures.
         /// </summary>
-        /// 
-        /// <param name="creature"> The creature type. </param>
-        /// 
+        /// <param name="creature">
+        ///     The creature type.
+        /// </param>
         /// <returns>
         ///     A number representing the order.
         /// </returns>

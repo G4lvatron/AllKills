@@ -65,6 +65,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllKillsMain.cs" />
+    <Compile Include="Menu\SlugcatSelectMenuStatistics.cs" />
+    <Compile Include="Menu\UIComponents\Base\MenuElementBase.cs" />
+    <Compile Include="Menu\UIComponents\Base\IVisibilityControlled.cs" />
+    <Compile Include="Menu\UIComponents\Base\ScrollBoxElement.cs" />
+    <Compile Include="Menu\UIComponents\CycleDetailScrollElement.cs" />
+    <Compile Include="Menu\UIComponents\PlaythroughDetail.cs" />
+    <Compile Include="Menu\UIComponents\ProgressGraph.cs" />
+    <Compile Include="Menu\UIComponents\ProgressionDetail.cs" />
+    <Compile Include="Menu\UIComponents\Base\ScrollBox.cs" />
+    <Compile Include="Menu\UIComponents\StorageDetail.cs" />
+    <Compile Include="Menu\UIComponents\SymbolCounter.cs" />
+    <Compile Include="Menu\UIComponents\TabSwitcher.cs" />
+    <Compile Include="Menu\UIComponents\CycleDetail.cs" />
     <Compile Include="Util\CreatureSort.cs" />
     <Compile Include="Menu\StatisticsData\DataFileHandling.cs" />
     <Compile Include="Menu\StatisticsData\GameStatistics.cs" />

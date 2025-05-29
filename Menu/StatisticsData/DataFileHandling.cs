@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
-using RWCustom;
 
 namespace AllKills.Menu.StatisticsData
 {
+    /// <summary>
+    ///     Data file handling for the statistics data used by AllKills.
+    /// </summary>
     public class DataFileHandling
     {
         public const string StatisticsFilePath = "allKills/allKillsMainData.xml";
 
         /// <summary>
-        ///     Load the game data for AllKills
+        ///     Load the game statistics for AllKills.
         /// </summary>
         public static GameStatistics LoadGameStatistics()
         {
@@ -39,9 +37,8 @@ namespace AllKills.Menu.StatisticsData
         }
 
         /// <summary>
-        ///     Save the game data for AllKills
+        ///     Save the game statistics for AllKills.
         /// </summary>
-        /// <param name="statistics"></param>
         public static bool SaveGameStatistics(GameStatistics statistics)
         {
             string filePath =
@@ -63,7 +60,7 @@ namespace AllKills.Menu.StatisticsData
             catch (Exception ex)
             {
                 UnityEngine.Debug.Log("AllKills failed to save data!!");
-                UnityEngine.Debug.Log(ex.ToString());
+                UnityEngine.Debug.LogException(ex);
                 return false;
             }
 

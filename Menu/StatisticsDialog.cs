@@ -11,23 +11,17 @@ namespace AllKills.Menu
     {
         #region Properties
 
-        /// <summary>
-        ///     The statistics menu where everything will be displayed.
-        /// </summary>
-        public StatisticsMenu Menu;
+        /// <summary> The statistics menu where everything will be displayed. </summary>
+        public readonly StatisticsMenu Menu;
 
-        /// <summary>
-        ///     The button to close the dialog.
-        /// </summary>
-        public SimpleButton CloseButton;
+        /// <summary> The button to close the dialog. </summary>
+        public readonly SimpleButton CloseButton;
 
         #endregion
 
         #region Private Properties
 
-        /// <summary>
-        ///     Action that will be called when this dialog is closed.
-        /// </summary>
+        /// <summary> Action that will be called when this dialog is closed. </summary>
         private readonly Action _onClose;
 
         #endregion
@@ -45,11 +39,22 @@ namespace AllKills.Menu
             _onClose = onClose;
 
             // Background
-            darkSprite.alpha = 0.8f;
-            AddCloseButton();
+            darkSprite.alpha = 0.9f;
+
+            // Close Button
+            CloseButton = new SimpleButton(
+                this,
+                pages[0],
+                Translate("CLOSE"),
+                "CLOSE",
+                new Vector2(
+                    manager.rainWorld.options.ScreenSize.x - 180f - manager.rainWorld.options.SafeScreenOffset.x,
+                    Mathf.Max(manager.rainWorld.options.SafeScreenOffset.y, 15f)),
+                new Vector2(110f, 30f));
+            pages[0].subObjects.Add(CloseButton);
 
             // Add statistics menu
-            Vector2 menuPos = new Vector2(0f, Options.ScreenSize.y);
+            Vector2 menuPos = new Vector2(0f, 0f);
             Menu = new StatisticsMenu(this, pages[0], menuPos);
             pages[0].subObjects.Add(Menu);
         }
@@ -72,21 +77,6 @@ namespace AllKills.Menu
                 _onClose();
                 manager.StopSideProcess(this);
             }
-        }
-
-        private void AddCloseButton()
-        {
-            CloseButton = new SimpleButton(
-                this,
-                pages[0],
-                Translate("CLOSE"),
-                "CLOSE",
-                new Vector2(
-                    manager.rainWorld.options.ScreenSize.x - 180f - manager.rainWorld.options.SafeScreenOffset.x,
-                    Mathf.Max(manager.rainWorld.options.SafeScreenOffset.y, 15f)),
-                new Vector2(110f, 30f));
-
-            pages[0].subObjects.Add(CloseButton);
         }
     }
 }
