@@ -62,7 +62,7 @@ namespace AllKills.Menu.UIComponents
                 + 30f;
         }
 
-        /// <inheritdoc cref="CycleDetail.GrafUpdate"/>
+        /// <inheritdoc/>
         public override void GrafUpdate(float timeStacker)
         {
             base.GrafUpdate(timeStacker);

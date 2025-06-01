@@ -37,8 +37,6 @@ namespace AllKills.Menu.UIComponents
             CampaignStatistics statistics)
             : base(menu, owner, pos, size)
         {
-            owner.Container.AddChild(myContainer = new FContainer());
-
             for (int i = 0; i < 30; i++)
             {
                 PlayThroughDetailLabel label = new PlayThroughDetailLabel(
@@ -56,7 +54,7 @@ namespace AllKills.Menu.UIComponents
                 + 30f;
         }
 
-        /// <inheritdoc cref="CycleDetail.GrafUpdate"/>
+        /// <inheritdoc/>
         public override void GrafUpdate(float timeStacker)
         {
             base.GrafUpdate(timeStacker);

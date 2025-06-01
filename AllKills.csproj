@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="AllKillsMain.cs" />
     <Compile Include="Menu\SlugcatSelectMenuStatistics.cs" />
+    <Compile Include="Menu\StatisticsData\GameStatisticsUtil.cs" />
     <Compile Include="Menu\UIComponents\Base\MenuElementBase.cs" />
     <Compile Include="Menu\UIComponents\Base\IVisibilityControlled.cs" />
     <Compile Include="Menu\UIComponents\Base\ScrollBoxElement.cs" />

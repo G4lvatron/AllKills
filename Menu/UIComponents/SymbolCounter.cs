@@ -1,4 +1,5 @@
-﻿using Menu;
+﻿using AllKills.Menu.UIComponents.Base;
+using Menu;
 using UnityEngine;
 
 namespace AllKills.Menu.UIComponents
@@ -6,7 +7,7 @@ namespace AllKills.Menu.UIComponents
     /// <summary>
     ///     A creature/item symbol along with a counter next to it.
     /// </summary>
-    public sealed class SymbolCounter : PositionedMenuObject
+    public sealed class SymbolCounter : PositionedMenuObject, IVisibilityControlled
     {
         #region Properties
 
@@ -114,14 +115,14 @@ namespace AllKills.Menu.UIComponents
             Symbol.lastShowFlash = 0f;
         }
 
-        /// <inheritdoc cref="CycleDetail.Update"/>
+        /// <inheritdoc cref="MenuElementBase.Update"/>
         public override void Update()
         {
             base.Update();
             Symbol.Update();
         }
 
-        /// <inheritdoc cref="CycleDetail.GrafUpdate"/>
+        /// <inheritdoc cref="MenuElementBase.GrafUpdate"/>
         public override void GrafUpdate(float timeStacker)
         {
             base.GrafUpdate(timeStacker);
@@ -148,7 +149,7 @@ namespace AllKills.Menu.UIComponents
 
         #region Visibility
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.Show"/>
+        /// <inheritdoc/>
         public void Show()
         {
             Visible = true;
@@ -159,7 +160,7 @@ namespace AllKills.Menu.UIComponents
             FracD.label.isVisible = true;
         }
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.Hide"/>
+        /// <inheritdoc/>
         public void Hide()
         {
             Visible = false;
@@ -170,7 +171,7 @@ namespace AllKills.Menu.UIComponents
             FracD.label.isVisible = false;
         }
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.SetOpacity"/>
+        /// <inheritdoc/>
         public void SetOpacity(float opacity)
         {
             Symbol.symbolSprite.alpha = opacity;

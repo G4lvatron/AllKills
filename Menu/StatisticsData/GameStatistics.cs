@@ -42,11 +42,17 @@ namespace AllKills.Menu.StatisticsData
     /// <summary> The statistics for a campaign. </summary>
     public class CampaignStatistics
     {
-        /// <summary> The total time in the campaign. </summary>
-        [XmlElement("ttime")] public int TotalTime;
+        /// <summary> The total time in the campaign spent alive. </summary>
+        [XmlElement("ttime")] public int TotalTimeAlive;
+
+        /// <summary> The total time wasted by dying. </summary>
+        [XmlElement("ttimed")] public int TotalTimeDead;
 
         /// <summary> The total score in the campaign. </summary>
         [XmlElement("tscore")] public int TotalScore;
+
+        /// <summary> The total score in the campaign with Downpour enabled. </summary>
+        [XmlElement("tscoremsc")] public int TotalScoreMsc;
 
         /// <summary> The list of cycles. </summary>
         [XmlArray("cycles")] [XmlArrayItem("cycle")]
@@ -65,11 +71,14 @@ namespace AllKills.Menu.StatisticsData
 
     #region Cycle
 
-    /// <summary> Data for a single cycle. </summary>
+    /// <summary> Data for a single cycle, or a range of cycles in certain cases. </summary>
     public class Cycle
     {
         /// <summary> The number of the cycle. </summary>
         [XmlElement("number")] public int CycleNumber;
+
+        /// <summary> The number of the last cycle if this is data for a range of cycles. </summary>
+        [XmlElement("endnumber")] public int? EndCycleNumber;
 
         /// <summary> The detailed statistics of the cycle. </summary>
         [XmlElement("stats")] public CycleStatistics Statistics;
@@ -78,17 +87,32 @@ namespace AllKills.Menu.StatisticsData
     /// <summary> The detailed statistics for a cycle. </summary>
     public class CycleStatistics
     {
-        /// <summary> The total time spent in the run so far. </summary>
-        [XmlElement("ttime")] public int TotalTime;
+        /// <summary> The total time spent in the run alive so far. </summary>
+        [XmlElement("ttime")] public int TotalTimeAlive;
+
+        /// <summary> Total time wasted by dying. </summary>
+        [XmlElement("ttimed")] public int TotalTimeDead;
 
         /// <summary> The time spent in the cycle. </summary>
-        [XmlElement("ctime")] public int CycleTime;
+        [XmlElement("ctime")] public int CycleTimeAlive;
+
+        /// <summary> Time wasted by dying between last cycle. </summary>
+        [XmlElement("ctimed")] public int CycleTimeDead;
 
         /// <summary> The total run score so far. </summary>
         [XmlElement("tscore")] public int TotalScore;
 
+        /// <summary> The total score in the campaign with Downpour enabled. </summary>
+        [XmlElement("tscoremsc")] public int TotalScoreMsc;
+
         /// <summary> The score change for the cycle. </summary>
         [XmlElement("cscore")] public int CycleScore;
+
+        /// <summary> The score change for the cycle with Downpour enabled. </summary>
+        [XmlElement("cscoremsc")] public int CycleScoreMsc;
+
+        /// <summary> If the player is starving at the end of this cycle. </summary>
+        [XmlElement("starve")] public bool IsStarved;
 
         /// <summary> The kills for the cycle. </summary>
         [XmlArray("kills")] [XmlArrayItem("kill")]
@@ -110,9 +134,12 @@ namespace AllKills.Menu.StatisticsData
         [XmlElement("creature")]
         public string CreatureTypeSerializable
         {
-            get => CreatureType.ToString();
+            get => CreatureType?.ToString() ?? "Unknown";
             set
             {
+                if (value == "Unknown")
+                    return;
+
                 bool success = ExtEnumBase.TryParse(typeof(CreatureTemplate.Type), value, true, out var result);
                 success &= result.GetType() == typeof(CreatureTemplate.Type);
 
@@ -139,9 +166,12 @@ namespace AllKills.Menu.StatisticsData
         [XmlElement("creature")]
         public string CreatureTypeSerializable
         {
-            get => CreatureType.ToString();
+            get => CreatureType?.ToString() ?? "NotCreature";
             set
             {
+                if (value == "NotCreature")
+                    return;
+
                 bool success = ExtEnumBase.TryParse(typeof(CreatureTemplate.Type), value, true,
                     out var result);
                 success &= result.GetType() == typeof(CreatureTemplate.Type);
@@ -156,9 +186,12 @@ namespace AllKills.Menu.StatisticsData
         [XmlElement("object")]
         public string ObjectTypeSerializable
         {
-            get => IsCreature ? CreatureType.ToString() : ObjectType.ToString();
+            get => ObjectType?.ToString() ?? "Unknown";
             set
             {
+                if (value == "Unknown")
+                    return;
+
                 bool success = ExtEnumBase.TryParse(typeof(AbstractPhysicalObject.AbstractObjectType), value, true,
                     out var result);
                 success &= result.GetType() == typeof(AbstractPhysicalObject.AbstractObjectType);
@@ -176,10 +209,7 @@ namespace AllKills.Menu.StatisticsData
         [XmlIgnore] public AbstractPhysicalObject.AbstractObjectType ObjectType;
 
         /// <summary> Optional data. </summary>
-        [XmlElement("intData")] public int IntData;
-
-        /// <summary> <c>true</c> if this food is a creature, <c>false</c> otherwise. </summary>
-        [XmlElement("isObj")] public bool IsCreature;
+        [XmlElement("intdata")] public int IntData;
 
         /// <summary> The amount of this food that was eaten. 1 food pip corresponds to 4 food. </summary>
         [XmlElement("count")] public int EatCount;

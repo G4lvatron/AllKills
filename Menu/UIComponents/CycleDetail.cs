@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AllKills.Menu.StatisticsData;
+using AllKills.Menu.UIComponents.Base;
 using Menu;
 using RWCustom;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace AllKills.Menu.UIComponents
     /// <summary>
     ///     An element for displaying the details of a single cycle.
     /// </summary>
-    public class CycleDetail : ButtonTemplate
+    public class CycleDetail : ButtonTemplate, IVisibilityControlled
     {
         #region Properties
 
@@ -170,7 +171,7 @@ namespace AllKills.Menu.UIComponents
             subObjects.Add(TotalTime = new MenuLabel(
                 this.menu,
                 this,
-                $"Time: {Custom.SecondsToMinutesAndSecondsString(cycle?.Statistics?.TotalTime ?? 0)}",
+                $"Time: {Custom.SecondsToMinutesAndSecondsString(cycle?.Statistics?.TotalTimeAlive ?? 0)}",
                 new Vector2(0f, 0f),
                 default,
                 false));
@@ -181,7 +182,7 @@ namespace AllKills.Menu.UIComponents
             subObjects.Add(CycleTime = new MenuLabel(
                 this.menu,
                 this,
-                $"(+{Custom.SecondsToMinutesAndSecondsString(cycle?.Statistics?.CycleTime ?? 0)})",
+                $"(+{Custom.SecondsToMinutesAndSecondsString(cycle?.Statistics?.CycleTimeAlive ?? 0)})",
                 new Vector2(0f, 0f),
                 default,
                 false));
@@ -286,9 +287,7 @@ namespace AllKills.Menu.UIComponents
             Hide();
         }
 
-        /// <summary>
-        ///     Update this element.
-        /// </summary>
+        /// <inheritdoc cref="MenuElementBase.Update"/>
         public override void Update()
         {
             base.Update();
@@ -300,12 +299,7 @@ namespace AllKills.Menu.UIComponents
                 * (buttonBehav.clicked ? 0f : 1f);
         }
 
-        /// <summary>
-        ///     Update the graphics of this element.
-        /// </summary>
-        /// <param name="timeStacker">
-        ///     A number representing time passed.
-        /// </param>
+        /// <inheritdoc cref="MenuElementBase.GrafUpdate"/>
         public override void GrafUpdate(float timeStacker)
         {
             base.GrafUpdate(timeStacker);
@@ -318,7 +312,7 @@ namespace AllKills.Menu.UIComponents
 
         #region Visibility
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.Show"/>
+        /// <inheritdoc/>
         public void Show()
         {
             if (IsVisible)
@@ -350,7 +344,7 @@ namespace AllKills.Menu.UIComponents
             IsVisible = true;
         }
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.Hide"/>
+        /// <inheritdoc/>
         public void Hide()
         {
             if (!IsVisible)
@@ -382,7 +376,7 @@ namespace AllKills.Menu.UIComponents
             IsVisible = false;
         }
 
-        /// <inheritdoc cref="PlaythroughDetail.PlaythroughDetailElement.SetOpacity"/>
+        /// <inheritdoc/>
         public void SetOpacity(float opacity)
         {
             Border.sprites.ToList().ForEach(s => s.alpha = opacity);

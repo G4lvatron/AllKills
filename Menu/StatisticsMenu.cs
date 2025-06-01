@@ -49,8 +49,8 @@ namespace AllKills.Menu
                             {
                                 TotalScore = 11647,
                                 CycleScore = 2456,
-                                TotalTime = 12273,
-                                CycleTime = 337,
+                                TotalTimeAlive = 12273,
+                                CycleTimeAlive = 337,
                                 Kills = new List<KillData>
                                 {
                                     new KillData
@@ -86,8 +86,8 @@ namespace AllKills.Menu
                             {
                                 TotalScore = 11647 - 2456,
                                 CycleScore = 123,
-                                TotalTime = 12273 - 337,
-                                CycleTime = 25,
+                                TotalTimeAlive = 12273 - 337,
+                                CycleTimeAlive = 25,
                                 Kills = new List<KillData>
                                 {
                                     new KillData
@@ -118,8 +118,8 @@ namespace AllKills.Menu
                             {
                                 TotalScore = 11647 - 2456 - 123,
                                 CycleScore = 345,
-                                TotalTime = 12273 - 337 - 25,
-                                CycleTime = 143,
+                                TotalTimeAlive = 12273 - 337 - 25,
+                                CycleTimeAlive = 143,
                                 Kills = new List<KillData>
                                 {
                                     new KillData

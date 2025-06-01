@@ -55,7 +55,7 @@ namespace AllKills
             On.RainWorld.UnloadResources += Hook_UnloadResources;
             On.CreatureSymbol.SpriteNameOfCreature += Hook_SpriteNameOfCreature;
 
-            // SleepAndDeathScreenStatistics
+            // Statistics
             _sleepStatistics.Attach();
             _selectStatistics.Attach();
         }

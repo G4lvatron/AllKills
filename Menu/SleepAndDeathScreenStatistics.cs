@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 using AllKills.Menu;
+using AllKills.Menu.StatisticsData;
 using Expedition;
 using HUD;
 using Menu;
@@ -41,10 +43,9 @@ namespace AllKills.Menu
             On.Menu.SleepAndDeathScreen.Singal += Hook_Signal;
             On.Menu.SleepAndDeathScreen.UpdateInfoText += Hook_UpdateInfoText;
             On.Menu.SleepAndDeathScreen.Update += Hook_Update;
+            On.Menu.SleepAndDeathScreen.GetDataFromGame += Hook_GetDataFromGame;
             On.RWInput.PlayerInput_int += Hook_PlayerInput;
         }
-
-        #region Sleep Screen
 
         /// <summary>
         ///     Hook: Add the button to open the statistics to the sleep and death screen.
@@ -179,6 +180,166 @@ namespace AllKills.Menu
             return inputs;
         }
 
-        #endregion
+        /// <summary>
+        ///     Hook: When reaching the sleep or death screen we want to save session data and verify existing data.
+        /// </summary>
+        /// <param name="orig">
+        ///     The original method to receive game data.
+        /// </param>
+        /// <param name="self">
+        ///     The sleep and death screen.
+        /// </param>
+        /// <param name="package">
+        ///     The game data from the cycle that was just played.
+        /// </param>
+        private static void Hook_GetDataFromGame(
+            On.Menu.SleepAndDeathScreen.orig_GetDataFromGame orig,
+            SleepAndDeathScreen self,
+            KarmaLadderScreen.SleepDeathScreenDataPackage package)
+        {
+            orig(self, package);
+#if DEBUG
+            package.LogPackageDetails();
+#endif
+            GameStatistics statistics = DataFileHandling.LoadGameStatistics(self.manager.rainWorld.options.saveSlot);
+            Cycle cycleData = package.GetCycleData();
+            Cycle previousCycleData = null;
+            SlugcatStats.Name slugcat = package.saveState.saveStateNumber;
+            if (statistics.Campaigns == null)
+                statistics.Campaigns = new List<Campaign>();
+            Campaign currentCampaign = statistics.Campaigns.Find(c => c.Character == slugcat);
+
+            if (currentCampaign is null)
+            {
+                currentCampaign = new Campaign
+                {
+                    Character = slugcat,
+                    Statistics = new CampaignStatistics
+                    {
+                        Cycles = new List<Cycle>()
+                    }
+                };
+
+                statistics.Campaigns.Add(currentCampaign);
+            }
+
+            // Player is sleeping
+            if (self.IsSleepScreen)
+            {
+                // Update totals and get score
+                currentCampaign.UpdateCampaignTotals(package);
+                int vanillaScore = currentCampaign.Statistics.TotalScore;
+                int mscScore = currentCampaign.Statistics.TotalScoreMsc;
+
+                // Handle starving
+                // Since these are reference types we can add the entries before all data is inserted
+                if (DataFileHandling.MalnourishedStatisticsCache.ContainsKey(slugcat))
+                {
+                    // Only add starve cycle if it is the previous cycle.
+                    if (
+                        !package.goalMalnourished
+                        && (DataFileHandling.MalnourishedStatisticsCache[slugcat].CycleNumber
+                            == cycleData.CycleNumber - 1
+                            || (DataFileHandling.MalnourishedStatisticsCache[slugcat].EndCycleNumber ?? -1)
+                            == cycleData.CycleNumber - 1))
+                    {
+                        currentCampaign.Statistics.Cycles.Add(
+                            previousCycleData = DataFileHandling.MalnourishedStatisticsCache[slugcat]);
+                    }
+
+                    DataFileHandling.MalnourishedStatisticsCache.Remove(slugcat);
+                }
+
+
+                // If this is the first cycle then just add all data.
+                if (currentCampaign.Statistics.Cycles.Count == 0)
+                {
+                    cycleData.EndCycleNumber = cycleData.CycleNumber;
+                    cycleData.CycleNumber = 1;
+
+                    cycleData.Statistics.CycleTimeAlive
+                        = cycleData.Statistics.TotalTimeAlive;
+                    cycleData.Statistics.CycleTimeDead
+                        = cycleData.Statistics.TotalTimeDead;
+                    cycleData.Statistics.TotalScore
+                        = cycleData.Statistics.CycleScore
+                            = vanillaScore;
+                    cycleData.Statistics.TotalScoreMsc
+                        = cycleData.Statistics.CycleScoreMsc
+                            = mscScore;
+
+                    List<KillData> totalKillData = currentCampaign.Statistics.TotalKills;
+                    cycleData.Statistics.Kills = totalKillData;
+                }
+                else if (
+                    !currentCampaign.Statistics.Cycles.Any(c =>
+                        c.CycleNumber == cycleData.CycleNumber
+                        || c.CycleNumber <= cycleData.CycleNumber &&
+                        (c.EndCycleNumber ?? -1) >= cycleData.CycleNumber))
+                {
+                    Debug.Log("New Cycle");
+
+                    if (previousCycleData is null)
+                    {
+                        previousCycleData = currentCampaign.Statistics.Cycles.Aggregate(
+                            new Cycle { CycleNumber = -1 },
+                            (p, n) => p.CycleNumber > n.CycleNumber || (p.EndCycleNumber ?? -1) > n.CycleNumber ? p : n
+                        );
+                    }
+
+                    // Add missing data if the previous cycle has no data.
+                    Debug.Log("Add Missing Data");
+
+                    if (
+                        previousCycleData.CycleNumber < cycleData.CycleNumber - 1
+                        && (previousCycleData.EndCycleNumber ?? int.MaxValue) < cycleData.CycleNumber - 1)
+                    {
+                        cycleData.EndCycleNumber = cycleData.CycleNumber;
+                        cycleData.CycleNumber = Mathf.Max(
+                            previousCycleData.CycleNumber,
+                            previousCycleData.EndCycleNumber ?? -1) + 1;
+
+                        // Recalculate kills
+                        Debug.Log("Recalculate");
+
+                        List<KillData> totalKillData = currentCampaign.Statistics.TotalKills;
+                        cycleData.Statistics.Kills = totalKillData.Subtract(previousCycleData.Statistics.Kills);
+                    }
+
+                    cycleData.Statistics.CycleTimeAlive
+                        = cycleData.Statistics.TotalTimeAlive - previousCycleData.Statistics.TotalTimeAlive;
+                    cycleData.Statistics.CycleTimeDead
+                        = cycleData.Statistics.TotalTimeDead - previousCycleData.Statistics.TotalTimeDead;
+                    cycleData.Statistics.TotalScore = vanillaScore;
+                    cycleData.Statistics.TotalScoreMsc = mscScore;
+                    cycleData.Statistics.CycleScore
+                        = cycleData.Statistics.TotalScore - previousCycleData.Statistics.TotalScore;
+                    cycleData.Statistics.CycleScoreMsc
+                        = cycleData.Statistics.TotalScoreMsc - previousCycleData.Statistics.TotalScoreMsc;
+                }
+                else
+                {
+                    Debug.Log(
+                        $"{AllKillsMain.ModName}: Trying to add cycle data for a cycle that already exists! Ignoring.");
+                    return;
+                }
+
+                if (package.goalMalnourished)
+                    DataFileHandling.MalnourishedStatisticsCache.Add(slugcat, cycleData);
+                else
+                    currentCampaign.Statistics.Cycles.Add(cycleData);
+
+                // Save to file asynchronously
+                Task saveTask = new Task(() =>
+                    DataFileHandling.SaveGameStatistics(statistics, self.manager.rainWorld.options.saveSlot));
+                saveTask.Start();
+            }
+            // Player died
+            else
+            {
+                if (DataFileHandling.MalnourishedStatisticsCache.ContainsKey(slugcat))
+                    DataFileHandling.MalnourishedStatisticsCache.Remove(slugcat);
+            }
+        }
     }
 }
