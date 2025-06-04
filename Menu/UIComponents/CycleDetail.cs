@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AllKills.Menu.StatisticsData;
@@ -130,10 +129,13 @@ namespace AllKills.Menu.UIComponents
                 true));
 
             // Title
+            string titleText = cycle?.EndCycleNumber != null
+                ? $"Cycles {cycle.CycleNumber} - {cycle.EndCycleNumber}"
+                : $"Cycle {cycle?.CycleNumber}";
             subObjects.Add(Title = new MenuLabel(
                 this.menu,
                 this,
-                $"Cycle {cycle?.CycleNumber}",
+                titleText,
                 new Vector2(0f, 0f),
                 default,
                 true));
@@ -145,7 +147,7 @@ namespace AllKills.Menu.UIComponents
             subObjects.Add(TotalScore = new MenuLabel(
                 this.menu,
                 this,
-                $"Score: {cycle?.Statistics?.TotalScore}",
+                $"Score: {(ModManager.MSC ? cycle?.Statistics?.TotalScoreMsc : cycle?.Statistics?.TotalScore)}",
                 new Vector2(0f, 0f),
                 default,
                 false));
@@ -156,8 +158,11 @@ namespace AllKills.Menu.UIComponents
             subObjects.Add(CycleScore = new MenuLabel(
                 this.menu,
                 this,
-                (cycle?.Statistics?.CycleScore >= 0 ? "(+" : "(") +
-                $"{cycle?.Statistics?.CycleScore})",
+                (!ModManager.MSC && cycle?.Statistics?.CycleScore >= 0
+                 || ModManager.MSC && cycle?.Statistics?.CycleScoreMsc >= 0
+                    ? "(+"
+                    : "(") +
+                $"{(ModManager.MSC ? cycle?.Statistics?.CycleScoreMsc : cycle?.Statistics?.CycleScore)})",
                 new Vector2(0f, 0f),
                 default,
                 false));
@@ -247,8 +252,8 @@ namespace AllKills.Menu.UIComponents
                         25f,
                         size.y
                         - CountHeight * KillRows
-                        - 90f),
-                    "Multiplayer_Bones",
+                        - (HasKills ? 105f : 90f)),
+                    "Stat_Eats",
                     " ~",
                     -32f));
 
@@ -270,7 +275,7 @@ namespace AllKills.Menu.UIComponents
                             size.y
                             - CountHeight * ((i + 1) / CountersPerRow)
                             - CountHeight * KillRows
-                            - 90f),
+                            - (HasKills ? 105f : 90f)),
                         eat.CreatureType,
                         eat.ObjectType,
                         eat.IntData,
@@ -325,7 +330,7 @@ namespace AllKills.Menu.UIComponents
             TotalScore.label.isVisible = true;
             CycleScore.label.isVisible = true;
             TotalTime.label.isVisible = true;
-            CycleTime.label.isVisible = false;
+            CycleTime.label.isVisible = true;
 
             if (HasKills)
             {
@@ -379,6 +384,8 @@ namespace AllKills.Menu.UIComponents
         /// <inheritdoc/>
         public void SetOpacity(float opacity)
         {
+            buttonBehav.greyedOut = opacity < 1;
+
             Border.sprites.ToList().ForEach(s => s.alpha = opacity);
             Title.label.alpha = opacity;
             TotalScore.label.alpha = opacity;

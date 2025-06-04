@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AllKills.Menu.StatisticsData;
+﻿using System.Collections.Generic;
 using AllKills.Menu.UIComponents.Base;
+using IL.RWCustom;
 using Menu;
 using UnityEngine;
 
@@ -23,6 +19,23 @@ namespace AllKills.Menu.UIComponents
         /// <summary> The number of pixels from the top of the content the scroll box has be scrolled through. </summary>
         public float ScrollDistance;
 
+        /// <summary> The scroll distance that the scrollbox wants to reach. </summary>
+        public float TargetScrollDistance;
+
+        /// <summary> If the mouse is over this element. </summary>
+        public virtual bool MouseOver
+        {
+            get
+            {
+                Vector2 screenPos = ScreenPos;
+                return
+                    menu.mousePosition.x > screenPos.x
+                    && menu.mousePosition.y > screenPos.y
+                    && menu.mousePosition.x < screenPos.x + Size.x
+                    && menu.mousePosition.y < screenPos.y + Size.y;
+            }
+        }
+
         #region Sub-Objects
 
         /// <summary> The scrollbar on the left of this element. </summary>
@@ -30,6 +43,10 @@ namespace AllKills.Menu.UIComponents
 
         /// <summary> The cycle detail elements displayed in the scroll box. </summary>
         public readonly List<ScrollBoxElement> Content;
+
+        public SymbolButton UpButton;
+
+        public SymbolButton DownButton;
 
         #endregion
 
@@ -64,11 +81,71 @@ namespace AllKills.Menu.UIComponents
                 true));
         }
 
+        /// <summary>
+        ///     Adds the scroll buttons. This should be called as late as possible for proper layering
+        /// </summary>
+        public void AddScrollButtons()
+        {
+            subObjects.Add(UpButton = new SymbolButton(
+                menu,
+                this,
+                "Menu_Symbol_Arrow",
+                "UP",
+                new Vector2(Size.x / 2, Size.y + 10f)));
+            UpButton.symbolSprite.sortZ = 99f;
+
+            subObjects.Add(DownButton = new SymbolButton(
+                menu,
+                this,
+                "Menu_Symbol_Arrow",
+                "DOWN",
+                new Vector2(Size.x / 2, -10f)));
+            DownButton.symbolSprite.rotation = 180f;
+            DownButton.symbolSprite.sortZ = 99f;
+        }
+
         /// <inheritdoc/>
         public override void Update()
         {
             base.Update();
 
+            // Button states
+            Scrollbar.buttonBehav.greyedOut = ContentHeight < Size.y;
+            if (UpButton != null)
+            {
+                UpButton.buttonBehav.greyedOut
+                    = ContentHeight < Size.y
+                      || ScrollDistance <= 0f;
+                DownButton.buttonBehav.greyedOut
+                    = ContentHeight < Size.y
+                      || ScrollDistance >= ContentHeight - Size.y;
+            }
+
+            // Smooth scroll
+            ScrollDistance = RWCustom.Custom.LerpAndTick(ScrollDistance, TargetScrollDistance, 0.5f, 0.5f);
+
+            // Mousewheel
+            if (
+                ContentHeight > Size.y
+                && MouseOver
+                && menu.manager.menuesMouseMode
+                && menu.mouseScrollWheelMovement != 0)
+            {
+                if (menu.mouseScrollWheelMovement < 0)
+                {
+                    TargetScrollDistance -= 50f;
+                    if (TargetScrollDistance < 0)
+                        TargetScrollDistance = 0;
+                }
+                else
+                {
+                    TargetScrollDistance += 50f;
+                    if (TargetScrollDistance > ContentHeight - Size.y)
+                        TargetScrollDistance = ContentHeight - Size.y;
+                }
+            }
+
+            // Position content
             float currentBasePosition = Size.y + ScrollDistance;
             foreach (ScrollBoxElement element in Content)
             {
@@ -105,6 +182,36 @@ namespace AllKills.Menu.UIComponents
             base.GrafUpdate(timeStacker);
         }
 
+        /// <summary>
+        ///     Handle signals.
+        /// </summary>
+        /// <param name="sender">
+        ///     The sender.
+        /// </param>
+        /// <param name="message">
+        ///     The message.
+        /// </param>
+        public override void Singal(MenuObject sender, string message)
+        {
+            base.Singal(sender, message);
+
+            switch (message)
+            {
+                case "UP":
+                    menu.PlaySound(SoundID.MENU_First_Scroll_Tick);
+                    TargetScrollDistance -= 100f;
+                    if (TargetScrollDistance < 0)
+                        TargetScrollDistance = 0;
+                    break;
+                case "DOWN":
+                    menu.PlaySound(SoundID.MENU_First_Scroll_Tick);
+                    TargetScrollDistance += 100f;
+                    if (TargetScrollDistance > ContentHeight - Size.y)
+                        TargetScrollDistance = ContentHeight - Size.y;
+                    break;
+            }
+        }
+
         #region Scrollbar Methods
 
         /// <summary>
@@ -132,7 +239,7 @@ namespace AllKills.Menu.UIComponents
         /// </param>
         public void SliderSetValue(Slider slider, float setValue)
         {
-            ScrollDistance = (ContentHeight - Size.y) * (1f - setValue);
+            ScrollDistance = TargetScrollDistance = (ContentHeight - Size.y) * (1f - setValue);
         }
 
         #endregion

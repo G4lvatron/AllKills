@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AllKills.Menu.StatisticsData;
 using Menu;
@@ -46,7 +45,6 @@ namespace AllKills.Menu.UIComponents
             foreach (var cycleDetail in cycleData.Select(c => new CycleDetailScrollElement(
                          menu,
                          this,
-                         new Vector2(float.NaN, float.NaN),
                          size.x - 20f,
                          c)))
             {
@@ -55,6 +53,7 @@ namespace AllKills.Menu.UIComponents
             }
 
             Content.Reverse();
+            AddScrollButtons();
 
             ContentHeight =
                 Content.Aggregate(0f, (n, c) => n + c.GetElementHeight())

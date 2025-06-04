@@ -1,4 +1,5 @@
 ﻿using System;
+using AllKills.Menu.StatisticsData;
 using Menu;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ namespace AllKills.Menu
 
         #endregion
 
-        public StatisticsDialog(ProcessManager manager, Action onClose) : base(manager)
+        public StatisticsDialog(ProcessManager manager, Campaign campaign, Action onClose) : base(manager)
         {
             // Setup
             this.manager = manager;
@@ -54,9 +55,23 @@ namespace AllKills.Menu
             pages[0].subObjects.Add(CloseButton);
 
             // Add statistics menu
-            Vector2 menuPos = new Vector2(0f, 0f);
-            Menu = new StatisticsMenu(this, pages[0], menuPos);
-            pages[0].subObjects.Add(Menu);
+            if (campaign is null)
+            {
+                MenuLabel noDataLabel = new MenuLabel(
+                    this,
+                    pages[0],
+                    "No Data",
+                    new Vector2(manager.rainWorld.options.ScreenSize.x / 2, manager.rainWorld.options.ScreenSize.y / 2),
+                    new Vector2(30f, 60f),
+                    true);
+                pages[0].subObjects.Add(noDataLabel);
+            }
+            else
+            {
+                Vector2 menuPos = new Vector2(0f, 0f);
+                Menu = new StatisticsMenu(this, pages[0], menuPos, manager.rainWorld.options.ScreenSize, campaign);
+                pages[0].subObjects.Add(Menu);
+            }
         }
 
         /// <summary>

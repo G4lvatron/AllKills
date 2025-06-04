@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AllKills.Menu.StatisticsData;
+﻿using AllKills.Menu.StatisticsData;
 using AllKills.Menu.UIComponents.Base;
 using Menu;
 using UnityEngine;
@@ -26,16 +21,14 @@ namespace AllKills.Menu.UIComponents
         /// </summary>
         /// <param name="menu"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
         /// <param name="owner"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
-        /// <param name="pos"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
         /// <param name="width"><inheritdoc cref="CycleDetail(Menu, MenuObject, Vector2, Vector2, Cycle)"/></param>
         /// <param name="cycle"><inheritdoc cref="CycleDetail(Menu, MenuObject, Vector2, Vector2, Cycle)"/></param>
         public CycleDetailScrollElement(
             global::Menu.Menu menu,
             MenuObject owner,
-            Vector2 pos,
             float width,
             Cycle cycle)
-            : base(menu, owner, pos, _getHeight(width, cycle))
+            : base(menu, owner, _getHeight(width, cycle))
         {
             subObjects.Add(CycleDetailElement = new CycleDetail(
                 menu,
@@ -94,7 +87,8 @@ namespace AllKills.Menu.UIComponents
             if (cycle?.Statistics?.Eats?.Count % perRow > 0)
                 eatRows++;
 
-            return 85f + CycleDetail.CountHeight * (eatRows + killRows);
+            return (cycle?.Statistics?.Kills?.Count > 0 ? 105f : 90f) +
+                   CycleDetail.CountHeight * (eatRows + killRows);
         }
 
         #endregion

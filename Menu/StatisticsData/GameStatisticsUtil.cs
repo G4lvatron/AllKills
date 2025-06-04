@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime;
 using System.Text;
-using System.Threading.Tasks;
 using Menu;
 using MoreSlugcats;
 using UnityEngine;
@@ -112,7 +109,7 @@ namespace AllKills.Menu.StatisticsData
         {
             Cycle cycle = new Cycle
             {
-                CycleNumber = package.saveState.cycleNumber,
+                CycleNumber = package.saveState.cycleNumber - 1,
                 Statistics = new CycleStatistics
                 {
                     TotalTimeAlive = package.saveState.totTime,
@@ -129,7 +126,8 @@ namespace AllKills.Menu.StatisticsData
                         .AggregateKillData(new KillData
                         {
                             CreatureType = k.symbolData.critType,
-                            IntData = k.symbolData.intData
+                            IntData = k.symbolData.intData,
+                            KillCount = 1
                         })
             );
             sessionRecord?.eats.ForEach(
@@ -190,7 +188,8 @@ namespace AllKills.Menu.StatisticsData
                         {
                             CreatureType = e.creatureType,
                             ObjectType = e.objType,
-                            IntData = 0
+                            IntData = 0,
+                            EatCount = 4
                         }));
 
             // Time
@@ -278,26 +277,62 @@ namespace AllKills.Menu.StatisticsData
             {
                 if (kill.Key.critType == CreatureTemplate.Type.RedCentipede)
                 {
-                    score += 19;
-                    mscScore += 25;
+                    score += 19 * kill.Value;
+                    mscScore += 25 * kill.Value;
                     continue;
                 }
 
                 int creatureScore = StoryGameStatisticsScreen.GetNonSandboxKillscore(kill.Key.critType);
-                if (creatureScore == 0)
-                    creatureScore =
-                        creatureKillScores[(int)MultiplayerUnlocks.SandboxUnlockForSymbolData(kill.Key)];
+                if (
+                    creatureScore == 0
+                    && (int)MultiplayerUnlocks.SandboxUnlockForSymbolData(kill.Key) < creatureKillScores.Length
+                    && (int)MultiplayerUnlocks.SandboxUnlockForSymbolData(kill.Key) >= 0)
+                {
+                    creatureScore = creatureKillScores[(int)MultiplayerUnlocks.SandboxUnlockForSymbolData(kill.Key)];
+                }
 
                 if (!IsCreatureFromDownpour(kill.Key.critType))
-                    score += creatureScore;
-                mscScore += creatureScore;
+                    score += creatureScore * kill.Value;
+                mscScore += creatureScore * kill.Value;
             }
 
             // Passage multiplier
             int multiplier =
-                1 + package.saveState.deathPersistentSaveData.winState.endgameTrackers.Count(e => e.GoalFullfilled);
+                1 + package.saveState.deathPersistentSaveData.winState.endgameTrackers
+                    .Where(c => c.IsPassage())
+                    .Count(e => e.GoalFullfilled);
             score *= multiplier;
             mscScore *= multiplier;
+        }
+
+        /// <summary>
+        ///     Determines whether this tracker is passage.
+        /// </summary>
+        /// <param name="tracker">
+        ///     The tracker.
+        /// </param>
+        /// <returns>
+        ///   <c>true</c> if the specified tracker is passage; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPassage(this WinState.EndgameTracker tracker)
+        {
+            WinState.EndgameID id = tracker.ID;
+
+            return
+                id == WinState.EndgameID.Survivor
+                || id == WinState.EndgameID.Hunter
+                || id == WinState.EndgameID.Saint
+                || id == WinState.EndgameID.Traveller
+                || id == WinState.EndgameID.Chieftain
+                || id == WinState.EndgameID.Monk
+                || id == WinState.EndgameID.Outlaw
+                || id == WinState.EndgameID.DragonSlayer
+                || id == WinState.EndgameID.Scholar
+                || id == WinState.EndgameID.Friend
+                || id == MoreSlugcatsEnums.EndgameID.Nomad
+                || id == MoreSlugcatsEnums.EndgameID.Martyr
+                || id == MoreSlugcatsEnums.EndgameID.Pilgrim
+                || id == MoreSlugcatsEnums.EndgameID.Mother;
         }
 
         /// <summary>
@@ -348,7 +383,7 @@ namespace AllKills.Menu.StatisticsData
                   + $"\nTotal food: {package.saveState.totFood}"
                   + $"\nSuccessful cycles: {package.saveState.deathPersistentSaveData.survives}"
                   + $"\nDeaths: {package.saveState.deathPersistentSaveData.deaths}"
-                  + $"\nQuits: {package.saveState.deathPersistentSaveData.quits}";
+                  + $"\nQuits: {package.saveState.deathPersistentSaveData.quits}\n";
 
             StringBuilder builder = new StringBuilder(message);
             builder.AppendLine("Total Kills:");
@@ -359,7 +394,7 @@ namespace AllKills.Menu.StatisticsData
                 builder.AppendLine($"\t{k.symbolData.critType} ({k.ID})"));
             builder.AppendLine("Eats:");
             package.sessionRecord.eats.ForEach(e =>
-                builder.AppendLine($"\t{e.creatureType}-{e.objType} ({e.ID})"));
+                builder.AppendLine($"\t{e.creatureType}{e.objType} ({e.ID})"));
 
             Debug.Log(builder.ToString());
         }

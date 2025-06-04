@@ -31,9 +31,9 @@ namespace AllKills.Menu.UIComponents
         /// <summary>
         ///     Create a new symbol counter.
         /// </summary>
-        /// <param name="menu"><inheritdoc cref="StatisticsMenu(StatisticsDialog, MenuObject, Vector2)"/></param>
-        /// <param name="owner"><inheritdoc cref="StatisticsMenu(StatisticsDialog, MenuObject, Vector2)"/></param>
-        /// <param name="pos"><inheritdoc cref="StatisticsMenu(StatisticsDialog, MenuObject, Vector2)"/></param>
+        /// <param name="menu"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
+        /// <param name="owner"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
+        /// <param name="pos"><inheritdoc cref="Base.MenuElementBase(Menu, MenuObject, Vector2)"/></param>
         /// <param name="creatureType">
         ///     The type to use for the symbol.
         /// </param>

@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
-using System.Text;
 using System.Threading.Tasks;
-using AllKills.Menu;
 using AllKills.Menu.StatisticsData;
-using Expedition;
-using HUD;
 using Menu;
-using RWCustom;
 using UnityEngine;
-using Watcher;
 
 namespace AllKills.Menu
 {
@@ -43,7 +35,7 @@ namespace AllKills.Menu
             On.Menu.SleepAndDeathScreen.Singal += Hook_Signal;
             On.Menu.SleepAndDeathScreen.UpdateInfoText += Hook_UpdateInfoText;
             On.Menu.SleepAndDeathScreen.Update += Hook_Update;
-            On.Menu.SleepAndDeathScreen.GetDataFromGame += Hook_GetDataFromGame;
+            On.Menu.KarmaLadderScreen.GetDataFromGame += Hook_GetDataFromGame;
             On.RWInput.PlayerInput_int += Hook_PlayerInput;
         }
 
@@ -96,7 +88,11 @@ namespace AllKills.Menu
             if (message == "STATISTICS")
             {
                 self.PlaySound(SoundID.MENU_Switch_Page_In);
-                StatisticsDialog dialog = new StatisticsDialog(self.manager, () => StatsDialogOpen = false);
+                SlugcatStats.Name slugcat = self.saveState.saveStateNumber;
+                GameStatistics statistics =
+                    DataFileHandling.LoadGameStatistics(self.manager.rainWorld.options.saveSlot);
+                Campaign campaign = statistics?.Campaigns?.Find(c => c.Character == slugcat);
+                StatisticsDialog dialog = new StatisticsDialog(self.manager, campaign, () => StatsDialogOpen = false);
                 self.manager.ShowDialog(dialog);
                 StatsDialogOpen = true;
             }
@@ -193,11 +189,16 @@ namespace AllKills.Menu
         ///     The game data from the cycle that was just played.
         /// </param>
         private static void Hook_GetDataFromGame(
-            On.Menu.SleepAndDeathScreen.orig_GetDataFromGame orig,
-            SleepAndDeathScreen self,
+            On.Menu.KarmaLadderScreen.orig_GetDataFromGame orig,
+            KarmaLadderScreen self,
             KarmaLadderScreen.SleepDeathScreenDataPackage package)
         {
             orig(self, package);
+
+            package.GetCurrentScore(out var a, out var b);
+
+            if (package?.saveState is null || package.sessionRecord is null)
+                return; // We can get here if the karma ladder screen is opened by another mod, like Score Galore
 #if DEBUG
             package.LogPackageDetails();
 #endif
@@ -224,7 +225,9 @@ namespace AllKills.Menu
             }
 
             // Player is sleeping
-            if (self.IsSleepScreen)
+            if (
+                ((self as SleepAndDeathScreen)?.IsSleepScreen ?? false)
+                || self.GetType() == typeof(StoryGameStatisticsScreen))
             {
                 // Update totals and get score
                 currentCampaign.UpdateCampaignTotals(package);
@@ -240,7 +243,7 @@ namespace AllKills.Menu
                         !package.goalMalnourished
                         && (DataFileHandling.MalnourishedStatisticsCache[slugcat].CycleNumber
                             == cycleData.CycleNumber - 1
-                            || (DataFileHandling.MalnourishedStatisticsCache[slugcat].EndCycleNumber ?? -1)
+                            || DataFileHandling.MalnourishedStatisticsCache[slugcat].EndCycleNumber
                             == cycleData.CycleNumber - 1))
                     {
                         currentCampaign.Statistics.Cycles.Add(
@@ -275,24 +278,20 @@ namespace AllKills.Menu
                     !currentCampaign.Statistics.Cycles.Any(c =>
                         c.CycleNumber == cycleData.CycleNumber
                         || c.CycleNumber <= cycleData.CycleNumber &&
-                        (c.EndCycleNumber ?? -1) >= cycleData.CycleNumber))
+                        c.EndCycleNumber >= cycleData.CycleNumber))
                 {
-                    Debug.Log("New Cycle");
-
                     if (previousCycleData is null)
                     {
                         previousCycleData = currentCampaign.Statistics.Cycles.Aggregate(
                             new Cycle { CycleNumber = -1 },
-                            (p, n) => p.CycleNumber > n.CycleNumber || (p.EndCycleNumber ?? -1) > n.CycleNumber ? p : n
+                            (p, n) => p.CycleNumber > n.CycleNumber || p.EndCycleNumber > n.CycleNumber ? p : n
                         );
                     }
 
                     // Add missing data if the previous cycle has no data.
-                    Debug.Log("Add Missing Data");
-
                     if (
                         previousCycleData.CycleNumber < cycleData.CycleNumber - 1
-                        && (previousCycleData.EndCycleNumber ?? int.MaxValue) < cycleData.CycleNumber - 1)
+                        && previousCycleData.EndCycleNumber < cycleData.CycleNumber - 1)
                     {
                         cycleData.EndCycleNumber = cycleData.CycleNumber;
                         cycleData.CycleNumber = Mathf.Max(
@@ -300,8 +299,6 @@ namespace AllKills.Menu
                             previousCycleData.EndCycleNumber ?? -1) + 1;
 
                         // Recalculate kills
-                        Debug.Log("Recalculate");
-
                         List<KillData> totalKillData = currentCampaign.Statistics.TotalKills;
                         cycleData.Statistics.Kills = totalKillData.Subtract(previousCycleData.Statistics.Kills);
                     }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.IO.Pipes;
-using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -37,8 +35,6 @@ namespace AllKills.Menu.StatisticsData
         /// </summary>
         public static GameStatistics LoadGameStatistics(int saveSlot)
         {
-            Debug.Log("Load");
-
             if (CurrentlyLoadedStatistics != null && saveSlot == CurrentlyLoadedSaveSlot)
                 return CurrentlyLoadedStatistics;
 
@@ -74,8 +70,6 @@ namespace AllKills.Menu.StatisticsData
         /// </summary>
         public static bool SaveGameStatistics(GameStatistics statistics, int saveSlot)
         {
-            Debug.Log("Save");
-
             string filePath =
                 $"{Application.persistentDataPath}/{string.Format(StatisticsFilePath, saveSlot)}";
 

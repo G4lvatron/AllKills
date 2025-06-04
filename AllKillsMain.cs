@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using AllKills.Menu;
 using AllKills.Util;
 using Mono.Cecil.Cil;
+using UnityEngine;
 
 namespace AllKills
 {
@@ -19,7 +20,7 @@ namespace AllKills
 
         public const string ModGuid = "galva.all_kills";
         public const string ModName = "Show All Kills";
-        public const string ModVersion = "1.0.3";
+        public const string ModVersion = "1.0.4";
 
         #endregion
 
@@ -51,9 +52,7 @@ namespace AllKills
             On.Menu.StoryGameStatisticsScreen.KillsTable.KillSort += Hook_KillSort;
 
             // Resources
-            On.RainWorld.LoadModResources += Hook_LoadModResources;
-            On.RainWorld.UnloadResources += Hook_UnloadResources;
-            On.CreatureSymbol.SpriteNameOfCreature += Hook_SpriteNameOfCreature;
+            ResourceHandling.Attach();
 
             // Statistics
             _sleepStatistics.Attach();
@@ -106,7 +105,9 @@ namespace AllKills
 
                 if (iconData != null)
                 {
-                    if ((int)MultiplayerUnlocks.SandboxUnlockForSymbolData(iconData.Value) >= self.killScores.Length)
+                    if (
+                        (int)MultiplayerUnlocks.SandboxUnlockForSymbolData(iconData.Value) >= self.killScores.Length
+                        || (int)MultiplayerUnlocks.SandboxUnlockForSymbolData(iconData.Value) < 0)
                     {
                         self.scoreKeeper.AddScoreAdder(0, ticker.getToValue);
                         return;
@@ -136,65 +137,6 @@ namespace AllKills
         {
             return CreatureSort.GetCreatureValue(tickerA.symbol.iconData) <
                    CreatureSort.GetCreatureValue(tickerB.symbol.iconData);
-        }
-
-        #endregion
-
-        #region Resources
-
-        /// <summary>
-        ///     Hook: Load the texture atlas for the custom textures from this mod.
-        /// </summary>
-        /// <param name="orig">
-        ///     The original method for loading resources.
-        /// </param>
-        /// <param name="self">
-        ///     The rain world instance.
-        /// </param>
-        private static void Hook_LoadModResources(On.RainWorld.orig_LoadModResources orig, RainWorld self)
-        {
-            // ReSharper disable once StringLiteralTypo
-            Futile.atlasManager.LoadAtlas("Atlases/iconsak");
-            orig(self);
-        }
-
-        /// <summary>
-        ///     Hook: Unload the texture atlas for the custom textures from this mod.
-        /// </summary>
-        /// <param name="orig">
-        ///     The original method for unloading resources.
-        /// </param>
-        /// <param name="self">
-        ///     The rain world instance.
-        /// </param>
-        private static void Hook_UnloadResources(On.RainWorld.orig_UnloadResources orig, RainWorld self)
-        {
-            // ReSharper disable once StringLiteralTypo
-            Futile.atlasManager.UnloadAtlas("Atlases/iconsak");
-            orig(self);
-        }
-
-        /// <summary>
-        ///     Hook: Lets the game find the sprites for the newly added creature textures.
-        /// </summary>
-        /// <param name="orig">
-        ///     The original method that finds the sprite name for a creature.
-        /// </param>
-        /// <param name="iconData">
-        ///     The data of the creature whose sprite name should be returned.
-        /// </param>
-        /// <returns>
-        ///     The sprite name of any newly added sprite when applicable, otherwise the original return value.
-        /// </returns>
-        private static string Hook_SpriteNameOfCreature(On.CreatureSymbol.orig_SpriteNameOfCreature orig,
-            IconSymbol.IconSymbolData iconData)
-        {
-            if (iconData.critType == CreatureTemplate.Type.TempleGuard)
-                return "Kill_Guard";
-
-            return iconData.critType == CreatureTemplate.Type.SmallCentipede
-                ? "Kill_SmallCentipede"
-                : orig(iconData);
         }
 
         #endregion

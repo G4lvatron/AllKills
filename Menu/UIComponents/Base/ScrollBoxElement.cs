@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Menu;
+﻿using Menu;
 using UnityEngine;
 
 namespace AllKills.Menu.UIComponents.Base
@@ -25,16 +20,14 @@ namespace AllKills.Menu.UIComponents.Base
         /// </summary>
         /// <param name="menu"><inheritdoc cref="MenuElementBase(Menu, MenuObject, Vector2)"/></param>
         /// <param name="owner"><inheritdoc cref="MenuElementBase(Menu, MenuObject, Vector2)"/></param>
-        /// <param name="pos"><inheritdoc cref="MenuElementBase(Menu, MenuObject, Vector2)"/></param>
         /// <param name="elementHeight">
         ///     The fixed height of this element.
         /// </param>
         protected ScrollBoxElement(
             global::Menu.Menu menu,
             MenuObject owner,
-            Vector2 pos,
             float elementHeight)
-            : base(menu, owner, pos)
+            : base(menu, owner, new Vector2(float.NaN, float.NaN))
         {
             ElementHeight = elementHeight;
         }
@@ -80,5 +73,32 @@ namespace AllKills.Menu.UIComponents.Base
 
         /// <inheritdoc/>
         public abstract void SetOpacity(float opacity);
+
+        public class Spacer : ScrollBoxElement
+        {
+            /// <summary>
+            ///     Create a spacer, which is a completely blank element used to separate other elements.
+            /// </summary>
+            /// <inheritdoc/>
+            public Spacer(global::Menu.Menu menu, MenuObject owner, float elementHeight) : base(menu,
+                owner, elementHeight)
+            {
+            }
+
+            /// <inheritdoc/>
+            public override void Show()
+            {
+            }
+
+            /// <inheritdoc/>
+            public override void Hide()
+            {
+            }
+
+            /// <inheritdoc/>
+            public override void SetOpacity(float opacity)
+            {
+            }
+        }
     }
 }

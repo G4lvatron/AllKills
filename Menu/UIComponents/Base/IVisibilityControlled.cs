@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AllKills.Menu.UIComponents.Base
+﻿namespace AllKills.Menu.UIComponents.Base
 {
     public interface IVisibilityControlled
     {

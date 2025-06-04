@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AllKills.Menu.StatisticsData;
+﻿using AllKills.Menu.StatisticsData;
 using AllKills.Menu.UIComponents;
 using Menu;
 using UnityEngine;
@@ -16,6 +15,12 @@ namespace AllKills.Menu
 
         #endregion
 
+        #region Properties
+
+        public Vector2 Size;
+
+        #endregion
+
         /// <summary>
         ///     Create the All Kills statistics menu.
         /// </summary>
@@ -28,144 +33,40 @@ namespace AllKills.Menu
         /// <param name="pos">
         ///     The position of this element relative to the owner.
         /// </param>
-        public StatisticsMenu(StatisticsDialog menu, MenuObject owner, Vector2 pos) : base(menu, owner, pos)
+        /// <param name="size">
+        ///     The size of this element.
+        /// </param>
+        /// <param name="campaign">
+        ///     The campaign statistics.
+        /// </param>
+        public StatisticsMenu(
+            StatisticsDialog menu,
+            MenuObject owner,
+            Vector2 pos,
+            Vector2 size,
+            Campaign campaign)
+            : base(menu, owner, pos)
         {
             // Setup
             this.menu = menu;
+            Size = size;
 
             CycleList list = new CycleList(
                 menu,
                 this,
-                new Vector2(100f, 100f),
-                new Vector2(600f, 600f),
-                new CampaignStatistics
-                {
-                    Cycles = new List<Cycle>
-                    {
-                        new Cycle
-                        {
-                            CycleNumber = 34,
-                            Statistics = new CycleStatistics
-                            {
-                                TotalScore = 11647,
-                                CycleScore = 2456,
-                                TotalTimeAlive = 12273,
-                                CycleTimeAlive = 337,
-                                Kills = new List<KillData>
-                                {
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.PinkLizard,
-                                        KillCount = 3
-                                    },
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.BlackLizard,
-                                        KillCount = 4
-                                    },
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.Scavenger,
-                                        KillCount = 2
-                                    }
-                                },
-                                Eats = new List<EatData>
-                                {
-                                    new EatData
-                                    {
-                                        ObjectType = AbstractPhysicalObject.AbstractObjectType.DangleFruit,
-                                        EatCount = 12
-                                    }
-                                }
-                            }
-                        },
-                        new Cycle
-                        {
-                            CycleNumber = 33,
-                            Statistics = new CycleStatistics
-                            {
-                                TotalScore = 11647 - 2456,
-                                CycleScore = 123,
-                                TotalTimeAlive = 12273 - 337,
-                                CycleTimeAlive = 25,
-                                Kills = new List<KillData>
-                                {
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.CyanLizard,
-                                        KillCount = 1
-                                    },
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.LanternMouse,
-                                        KillCount = 11
-                                    }
-                                },
-                                Eats = new List<EatData>
-                                {
-                                    new EatData
-                                    {
-                                        ObjectType = AbstractPhysicalObject.AbstractObjectType.SeedCob,
-                                        EatCount = 16
-                                    }
-                                }
-                            }
-                        },
-                        new Cycle
-                        {
-                            CycleNumber = 32,
-                            Statistics = new CycleStatistics
-                            {
-                                TotalScore = 11647 - 2456 - 123,
-                                CycleScore = 345,
-                                TotalTimeAlive = 12273 - 337 - 25,
-                                CycleTimeAlive = 143,
-                                Kills = new List<KillData>
-                                {
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.Centiwing,
-                                        KillCount = 1
-                                    },
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.PoleMimic,
-                                        KillCount = 1
-                                    },
-                                    new KillData
-                                    {
-                                        CreatureType = CreatureTemplate.Type.BigNeedleWorm,
-                                        KillCount = 3
-                                    }
-                                },
-                                Eats = new List<EatData>
-                                {
-                                    new EatData
-                                    {
-                                        ObjectType = AbstractPhysicalObject.AbstractObjectType.SlimeMold,
-                                        EatCount = 12
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                new Vector2(50f, 50f),
+                new Vector2(size.x / 2 - 75f, size.y - 100f),
+                campaign?.Statistics
             );
             subObjects.Add(list);
 
             PlaythroughDetail detail = new PlaythroughDetail(
                 menu,
                 this,
-                new Vector2(720f, 100f),
-                new Vector2(600f, 600f),
-                null);
+                new Vector2(size.x / 2 + 25f, 50f),
+                new Vector2(size.x / 2 - 75f, size.y - 100f),
+                campaign);
             subObjects.Add(detail);
-
-            AddScrollBox();
-        }
-
-        private void AddScrollBox()
-        {
         }
     }
 }

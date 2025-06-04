@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AllKills.Menu.StatisticsData;
 using Menu;
 using UnityEngine;
 
@@ -87,7 +83,11 @@ namespace AllKills.Menu
             if (message == "STATISTICS")
             {
                 self.PlaySound(SoundID.MENU_Switch_Page_In);
-                StatisticsDialog dialog = new StatisticsDialog(self.manager, () => { });
+                SlugcatStats.Name slugcat = self.slugcatColorOrder[self.slugcatPageIndex];
+                GameStatistics statistics =
+                    DataFileHandling.LoadGameStatistics(self.manager.rainWorld.options.saveSlot);
+                Campaign campaign = statistics?.Campaigns?.Find(c => c.Character == slugcat);
+                StatisticsDialog dialog = new StatisticsDialog(self.manager, campaign, () => { });
                 self.manager.ShowDialog(dialog);
             }
         }
